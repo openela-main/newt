@@ -1,0 +1,25 @@
+commit ddc56f06b629aad44d0cf7e9d15a5cc1114b72c9
+Author: Miroslav Lichvar <mlichvar@redhat.com>
+Date:   Mon May 27 13:34:54 2019 +0200
+
+    fix radio button selection check in snack
+    
+    https://pagure.io/newt/issue/1
+
+diff --git a/snack.c b/snack.c
+index 880a431..c253f0c 100644
+--- a/snack.c
++++ b/snack.c
+@@ -1096,7 +1096,11 @@ static PyObject * widget_get_radioValue(PyObject *self, void *closure)
+ {
+ 	snackWidget *w = (snackWidget *)self;
+ 
+-	return Py_BuildValue("i", newtRadioGetCurrent(w->co));
++#if SIZEOF_VOID_P <= SIZEOF_LONG
++	return Py_BuildValue("l", (long)newtRadioGetCurrent(w->co));
++#else
++	return Py_BuildValue("L", (long long)newtRadioGetCurrent(w->co));
++#endif
+ }
+ 
+ static void widgetDestructor(PyObject * o) {
